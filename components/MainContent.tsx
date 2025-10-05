@@ -20,13 +20,15 @@ export interface Equipment {
 export default function MainContent({ equipmentData }: { equipmentData: Equipment[] }) {
   const [searchQuery, setSearchQuery] = useState("");
 
-  // const filteredEquipment = equipmentData.filter(
-  //   (eq) =>
-  //     eq.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //     eq.category.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
+const filteredEquipment = searchQuery.trim()
+  ? equipmentData.filter((eq) => {
+      const name = eq.name?.toLowerCase() || "";
+      const category = eq.category?.toLowerCase() || "";
+      const query = searchQuery.toLowerCase();
 
-  const filteredEquipment = equipmentData;
+      return name.includes(query) || category.includes(query);
+    })
+  : equipmentData;
 
   return (
     <div className="min-h-screen bg-background">
