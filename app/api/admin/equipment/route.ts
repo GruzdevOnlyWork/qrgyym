@@ -1,0 +1,83 @@
+import { NextResponse, type NextRequest } from "next/server";
+import jwt from "jsonwebtoken";
+import { prisma } from "@/prisma/prisma-client";
+
+const SECRET = process.env.SECRET_CODE || "";
+
+function verifyToken(token: string | undefined) {
+  if (!token) return false;
+  try {
+    jwt.verify(token, SECRET);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function GET(request: NextRequest) {
+
+  const equipmentList = await prisma.equipment.findMany();
+  return NextResponse.json(equipmentList);
+}
+
+export async function POST(request: NextRequest) {
+
+  const token = request.cookies.get("admin_token")?.value;
+  if (!verifyToken(token)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const data = await request.json();
+
+
+  try {
+    const newEquipment = await prisma.equipment.create({
+      data,
+    });
+    return NextResponse.json(newEquipment);
+  } catch (error) {
+    return NextResponse.json({ error: "Error creating equipment" }, { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest) {
+
+  const token = request.cookies.get("admin_token")?.value;
+  if (!verifyToken(token)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const data = await request.json();
+
+
+  try {
+    const updatedEquipment = await prisma.equipment.update({
+      where: { id: data.id },
+      data,
+    });
+    return NextResponse.json(updatedEquipment);
+  } catch (error) {
+    return NextResponse.json({ error: "Error updating equipment" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+
+  const token = request.cookies.get("admin_token")?.value;
+  if (!verifyToken(token)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  }
+
+  try {
+    await prisma.equipment.delete({ where: { id } });
+    return NextResponse.json({ message: "Deleted" });
+  } catch (error) {
+    return NextResponse.json({ error: "Error deleting equipment" }, { status: 500 });
+  }
+}
