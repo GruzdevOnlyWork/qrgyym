@@ -14,41 +14,36 @@ function verifyToken(token: string | undefined) {
   }
 }
 
-export async function GET(request: NextRequest) {
-
+export async function GET(_request: NextRequest) {
   const equipmentList = await prisma.equipment.findMany();
   return NextResponse.json(equipmentList);
 }
 
 export async function POST(request: NextRequest) {
-
   const token = request.cookies.get("admin_token")?.value;
   if (!verifyToken(token)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const data = await request.json();
-
 
   try {
     const newEquipment = await prisma.equipment.create({
       data,
     });
     return NextResponse.json(newEquipment);
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: "Error creating equipment" }, { status: 500 });
   }
 }
 
 export async function PUT(request: NextRequest) {
-
   const token = request.cookies.get("admin_token")?.value;
   if (!verifyToken(token)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const data = await request.json();
-
 
   try {
     const updatedEquipment = await prisma.equipment.update({
@@ -56,13 +51,12 @@ export async function PUT(request: NextRequest) {
       data,
     });
     return NextResponse.json(updatedEquipment);
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: "Error updating equipment" }, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest) {
-
   const token = request.cookies.get("admin_token")?.value;
   if (!verifyToken(token)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -77,7 +71,7 @@ export async function DELETE(request: NextRequest) {
   try {
     await prisma.equipment.delete({ where: { id } });
     return NextResponse.json({ message: "Deleted" });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: "Error deleting equipment" }, { status: 500 });
   }
 }

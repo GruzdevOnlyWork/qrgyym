@@ -14,7 +14,7 @@ function verifyToken(token: string | undefined) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const exercises = await prisma.exercise.findMany({
     include: {
       muscles: { include: { muscle: true } },
@@ -30,7 +30,6 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json(parsedExercises);
 }
-
 
 export async function POST(request: NextRequest) {
   const token = request.cookies.get("admin_token")?.value;
@@ -87,13 +86,11 @@ export async function POST(request: NextRequest) {
       ...newExercise,
       targetMuscles,
     }, { status: 201 });
-  } catch (error) {
-
-    console.error("Ошибка создания упражнения:", error);
+  } catch (_error) {
+    console.error("Ошибка создания упражнения:", _error);
     return NextResponse.json({ error: "Ошибка создания упражнения" }, { status: 500 });
   }
 }
-
 
 export async function PUT(request: NextRequest) {
   const token = request.cookies.get("admin_token")?.value;
@@ -170,15 +167,11 @@ export async function PUT(request: NextRequest) {
     const targetMuscles = updatedExercise.muscles.map((m) => m.muscle.name);
 
     return NextResponse.json({ ...updatedExercise, targetMuscles });
-  } catch (error) {
-    console.error("Ошибка обновления упражнения:", error);
+  } catch (_error) {
+    console.error("Ошибка обновления упражнения:", _error);
     return NextResponse.json({ error: "Ошибка обновления упражнения" }, { status: 500 });
   }
 }
-
-
-
-
 
 export async function DELETE(request: NextRequest) {
   const token = request.cookies.get("admin_token")?.value;
@@ -195,7 +188,7 @@ export async function DELETE(request: NextRequest) {
   try {
     await prisma.exercise.delete({ where: { id } });
     return NextResponse.json({ message: "Удалено" });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: "Ошибка удаления упражнения" }, { status: 500 });
   }
 }

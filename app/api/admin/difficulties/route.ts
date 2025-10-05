@@ -12,7 +12,7 @@ export async function GET() {
     }));
 
     return NextResponse.json(dataWithStringId);
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: "Ошибка получения данных" }, { status: 500 });
   }
 }

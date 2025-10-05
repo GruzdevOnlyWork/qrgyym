@@ -6,8 +6,18 @@ import heroImage from "@/assets/gym-hero.jpg";
 import { Dumbbell, Search, Target, Trophy } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Exercise } from "@prisma/client";
 
-export default function MainContent({ equipmentData }: { equipmentData: any[] }) {
+export interface Equipment {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  qrCodeUrl?: string;
+  exercises: Exercise[];
+}
+
+export default function MainContent({ equipmentData }: { equipmentData: Equipment[] }) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredEquipment = equipmentData.filter(
@@ -28,13 +38,13 @@ export default function MainContent({ equipmentData }: { equipmentData: any[] })
       >
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="text-center space-y-6 max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-primary to-primary-foreground bg-clip-text  text-white">
+            <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-primary to-primary-foreground bg-clip-text text-white">
               GymPro
             </h1>
             <p className="text-xl md:text-2xl text-white ">
               Твой умный путеводитель по тренажерному залу
             </p>
-            <p className="text-white  max-w-2xl mx-auto leading-relaxed">
+            <p className="text-white max-w-2xl mx-auto leading-relaxed">
               Сканируй QR-коды на тренажёрах и получай доступ к детальным инструкциям, видео и советам по технике выполнения упражнений
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -51,14 +61,24 @@ export default function MainContent({ equipmentData }: { equipmentData: any[] })
         <div className="absolute bottom-20 right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
       </section>
 
-
       <section className="py-16 px-4 bg-card/30">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[{ icon: Search, title: "QR-коды", desc: "Просто отсканируй код на тренажёре и получи всю информацию" },
-              { icon: Target, title: "Детальные инструкции", desc: "Пошаговые руководства с анимациями и советами" },
-              { icon: Trophy, title: "Правильная техника", desc: "Избегай травм и достигай лучших результатов" }
-            ].map(({ icon: Icon, title, desc }) => (
+            {[{
+              icon: Search,
+              title: "QR-коды",
+              desc: "Просто отсканируй код на тренажёре и получи всю информацию"
+            },
+            {
+              icon: Target,
+              title: "Детальные инструкции",
+              desc: "Пошаговые руководства с анимациями и советами"
+            },
+            {
+              icon: Trophy,
+              title: "Правильная техника",
+              desc: "Избегай травм и достигай лучших результатов"
+            }].map(({ icon: Icon, title, desc }) => (
               <div key={title} className="text-center space-y-3 p-6 bg-gradient-card rounded-xl border border-border">
                 <div className="w-12 h-12 bg-gradient-primary rounded-lg mx-auto flex items-center justify-center">
                   <Icon className="w-6 h-6 text-primary" />
@@ -78,7 +98,6 @@ export default function MainContent({ equipmentData }: { equipmentData: any[] })
               <h2 className="text-4xl font-extrabold text-foreground">Каталог тренажёров</h2>
               <p className="text-muted-foreground">Выбери тренажёр, чтобы увидеть доступные упражнения</p>
             </div>
-
 
             <div className="max-w-md mx-auto relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />

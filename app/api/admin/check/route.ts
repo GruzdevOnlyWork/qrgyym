@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   try {
     jwt.verify(token, SECRET);
     return NextResponse.json({ authenticated: true });
-  } catch (err) {
+  } catch (_err) {
     return NextResponse.json({ authenticated: false }, { status: 401 });
   }
 }

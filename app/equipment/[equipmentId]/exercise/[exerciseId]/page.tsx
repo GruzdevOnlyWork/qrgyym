@@ -5,6 +5,7 @@ import { ArrowLeft, CheckCircle, Lightbulb, Target, ImageIcon } from "lucide-rea
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 
 interface ExercisePageProps {
   params: { equipmentId: string; exerciseId: string };
@@ -43,18 +44,6 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
     }
   };
 
-  const getDifficultyText = (difficulty: string) => {
-    switch (difficulty) {
-      case "Легкий":
-        return "Новичок";
-      case "Средний":
-        return "Средний уровень";
-      case "Сложный":
-        return "Продвинутый";
-      default:
-        return difficulty;
-    }
-  };
 
   const accentIconClass = "inline-block mr-2 text-blue-600";
   const accentTitleClass = "text-lg font-semibold text-blue-700";
@@ -113,10 +102,13 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <img
+              <Image
                 src={exercise.imageUrl}
                 alt={`Изображение упражнения ${exercise.name}`}
-                className="w-full rounded-lg shadow-lg"
+                width={800} // укажите релевантные размеры для вашего дизайна
+                height={450}
+                className="rounded-lg shadow-lg"
+                priority={true} // если важно для загрузки в начале страницы, можно убрать иначе
               />
             </CardContent>
           </Card>

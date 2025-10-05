@@ -9,7 +9,7 @@ export async function GET() {
       orderBy: { name: "asc" },
     });
     return NextResponse.json(muscles);
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: "Failed to fetch muscles" }, { status: 500 });
   }
 }

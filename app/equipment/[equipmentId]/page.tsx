@@ -1,9 +1,7 @@
 import { prisma } from "../../../prisma/prisma-client";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Dumbbell } from "lucide-react";
-import Link from "next/link";
+import {  Dumbbell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import QRCodeDisplay from "@/components/QRCodeDisplay";
 import ExerciseCard from "@/components/ExerciseCard";
 import Header from "@/components/Header";
