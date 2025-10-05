@@ -43,7 +43,7 @@ const filteredEquipment = searchQuery.trim()
         <div className="container mx-auto max-w-6xl relative z-10">
           <div className="text-center space-y-6 max-w-3xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-primary to-primary-foreground bg-clip-text text-white">
-              GymPro
+              BTGPgym
             </h1>
             <p className="text-xl md:text-2xl text-white ">
               Твой умный путеводитель по тренажерному залу
