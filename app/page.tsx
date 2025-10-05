@@ -2,6 +2,8 @@
 import { prisma } from "../prisma/prisma-client";
 import MainContent from "../components/MainContent";
 
+export const revalidate = 0; // всегда получать свежие данные
+
 async function getEquipmentData() {
   return prisma.equipment.findMany({
     include: { exercises: { include: { difficulty: true } } },
