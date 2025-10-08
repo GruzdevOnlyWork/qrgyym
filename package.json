@@ -3,18 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "prisma generate && next build --turbopack",
+    "dev": "next dev",
+    "build": "prisma generate && next build", 
     "start": "next start",
     "lint": "eslint",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
     "prisma:seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate"
-  }
-,
+  },
   "dependencies": {
     "@prisma/client": "^6.16.3",
+    "@prisma/extension-accelerate": "^2.0.2",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
     "@radix-ui/react-avatar": "^1.1.10",
