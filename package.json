@@ -4,14 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "generate": "prisma generate",
-    "build": "npm run generate && next build --turbopack",
+    "build": "next build --turbopack",
     "start": "next start",
-    "postinstall": "npm run generate",
     "lint": "eslint",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "tsx prisma/seed.ts"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "postinstall": "prisma generate"
   }
 ,
   "dependencies": {
