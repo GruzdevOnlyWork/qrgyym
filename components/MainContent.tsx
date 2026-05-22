@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import EquipmentCard from "@/components/EquipmentCard";
 import heroImage from "@/assets/gym-hero.jpg";
-import { Dumbbell, Search, Target, Trophy, SearchX, ArrowUp } from "lucide-react";
+import { Dumbbell, Search, SearchX, ArrowUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -112,42 +112,11 @@ export default function MainContent({ equipmentData }: { equipmentData: Equipmen
         <div className="absolute bottom-20 right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
       </section>
 
-      <section className="py-16 px-4 bg-card/30">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[{
-              icon: Search,
-              title: "QR-коды",
-              desc: "Просто отсканируй код на тренажёре и получи всю информацию"
-            },
-            {
-              icon: Target,
-              title: "Детальные инструкции",
-              desc: "Пошаговые руководства с анимациями и советами"
-            },
-            {
-              icon: Trophy,
-              title: "Правильная техника",
-              desc: "Избегай травм и достигай лучших результатов"
-            }].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="text-center space-y-3 p-6 bg-gradient-card rounded-xl border border-border">
-                <div className="w-12 h-12 bg-gradient-primary rounded-lg mx-auto flex items-center justify-center">
-                  <Icon className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground">{title}</h3>
-                <p className="text-muted-foreground text-sm">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section id="equipment" className="py-16 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="space-y-8">
-            <div className="text-center space-y-4">
+            <div className="text-center">
               <h2 className="text-4xl font-extrabold text-foreground">Каталог тренажёров</h2>
-              <p className="text-muted-foreground">Выбери тренажёр, чтобы увидеть доступные упражнения</p>
             </div>
 
             <div className="max-w-md mx-auto relative">
