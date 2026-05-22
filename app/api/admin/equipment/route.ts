@@ -29,12 +29,14 @@ export async function POST(request: NextRequest) {
   const data = await request.json();
 
   try {
+    const { qrCodeUrl: _ignored, ...createData } = data;
     const equipment = await prisma.equipment.create({
-      data,
+      data: { ...createData, qrCodeUrl: "" },
     });
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://example.com";
     const updated = await prisma.equipment.update({
       where: { id: equipment.id },
-      data: { qrCodeUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/equipment/${equipment.id}` },
+      data: { qrCodeUrl: `${siteUrl}/equipment/${equipment.id}` },
     });
     // Сброс кэша главной страницы, чтобы обновленные данные показались
     revalidatePath('/');
