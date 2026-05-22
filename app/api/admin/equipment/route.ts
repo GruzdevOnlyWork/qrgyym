@@ -29,12 +29,16 @@ export async function POST(request: NextRequest) {
   const data = await request.json();
 
   try {
-    const newEquipment = await prisma.equipment.create({
+    const equipment = await prisma.equipment.create({
       data,
+    });
+    const updated = await prisma.equipment.update({
+      where: { id: equipment.id },
+      data: { qrCodeUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/equipment/${equipment.id}` },
     });
     // Сброс кэша главной страницы, чтобы обновленные данные показались
     revalidatePath('/');
-    return NextResponse.json(newEquipment);
+    return NextResponse.json(updated);
   } catch (_error) {
     return NextResponse.json({ error: "Error creating equipment" }, { status: 500 });
   }

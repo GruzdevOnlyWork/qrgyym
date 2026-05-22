@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import EquipmentCard from "@/components/EquipmentCard";
 import heroImage from "@/assets/gym-hero.jpg";
-import { Dumbbell, Search, Target, Trophy } from "lucide-react";
+import { Dumbbell, Search, Target, Trophy, SearchX, ArrowUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Exercise } from "@prisma/client";
 
 export interface Equipment {
@@ -17,18 +18,64 @@ export interface Equipment {
   exercises: Exercise[];
 }
 
+function EquipmentSkeleton() {
+  return (
+    <div className="bg-gradient-card border border-border rounded-xl p-6 space-y-4">
+      <div className="flex items-center gap-3">
+        <Skeleton className="w-10 h-10 rounded-lg" />
+        <Skeleton className="h-6 w-40" />
+      </div>
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-3/4" />
+      <div className="flex gap-2">
+        <Skeleton className="h-6 w-20 rounded-full" />
+        <Skeleton className="h-6 w-24 rounded-full" />
+      </div>
+    </div>
+  );
+}
+
 export default function MainContent({ equipmentData }: { equipmentData: Equipment[] }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
-const filteredEquipment = searchQuery.trim()
-  ? equipmentData.filter((eq) => {
-      const name = eq.name?.toLowerCase() || "";
-      const category = eq.category?.toLowerCase() || "";
-      const query = searchQuery.toLowerCase();
+  useEffect(() => {
+    if (equipmentData) {
+      setIsLoading(false);
+    }
+  }, [equipmentData]);
 
-      return name.includes(query) || category.includes(query);
-    })
-  : equipmentData;
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Scroll to top button visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const filteredEquipment = debouncedQuery.trim()
+    ? equipmentData.filter((eq) => {
+        const name = eq.name?.toLowerCase() || "";
+        const category = eq.category?.toLowerCase() || "";
+        const query = debouncedQuery.toLowerCase();
+        return name.includes(query) || category.includes(query);
+      })
+    : equipmentData;
 
   return (
     <div className="min-h-screen bg-background">
@@ -115,13 +162,30 @@ const filteredEquipment = searchQuery.trim()
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredEquipment.length > 0 ? (
-                filteredEquipment.map((equipment) => (
-                  <EquipmentCard key={equipment.id} equipment={equipment} />
+              {isLoading ? (
+                <>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <EquipmentSkeleton key={i} />
+                  ))}
+                </>
+              ) : filteredEquipment.length > 0 ? (
+                filteredEquipment.map((equipment, i) => (
+                  <div
+                    key={equipment.id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${i * 80}ms` }}
+                  >
+                    <EquipmentCard equipment={equipment} />
+                  </div>
                 ))
               ) : (
-                <div className="text-center py-12 col-span-full">
-                  <p className="text-muted-foreground text-lg">Тренажёры не найдены. Попробуйте другой запрос.</p>
+                <div className="text-center py-16 col-span-full space-y-3">
+                  <SearchX className="w-12 h-12 mx-auto text-muted-foreground" />
+                  <p className="text-muted-foreground text-lg">
+                    {debouncedQuery.trim()
+                      ? `По запросу «${debouncedQuery}» ничего не найдено`
+                      : "Тренажёры не найдены"}
+                  </p>
                 </div>
               )}
             </div>
@@ -131,9 +195,19 @@ const filteredEquipment = searchQuery.trim()
 
       <footer className="bg-card border-t border-border py-8 px-4 mt-16">
         <div className="container mx-auto max-w-6xl text-center">
-          <p className="text-muted-foreground">© 2025 GymPro. Современный каталог тренажёров и упражнений.</p>
+          <p className="text-muted-foreground">© 2025 BTGPGym — БТГП. Современный каталог тренажёров и упражнений.</p>
         </div>
       </footer>
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-opacity z-50"
+          aria-label="Наверх"
+        >
+          <ArrowUp className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/prisma/prisma-client";
+import { revalidatePath } from "next/cache";
 
 const SECRET = process.env.SECRET_CODE || "";
 
@@ -23,9 +24,9 @@ export async function GET(_request: NextRequest) {
     },
   });
 
-  const parsedExercises = exercises.map((ex) => ({
+  const parsedExercises = exercises.map((ex: typeof exercises[number]) => ({
     ...ex,
-    targetMuscles: ex.muscles.map((m) => m.muscle.name),
+    targetMuscles: ex.muscles.map((m: typeof ex.muscles[number]) => m.muscle.name),
   }));
 
   return NextResponse.json(parsedExercises);
@@ -80,8 +81,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const targetMuscles = newExercise.muscles.map(m => m.muscle.name);
+    const targetMuscles = newExercise.muscles.map((m: typeof newExercise.muscles[number]) => m.muscle.name);
 
+    revalidatePath(`/equipment/${newExercise.equipmentId}`, 'page');
     return NextResponse.json({
       ...newExercise,
       targetMuscles,
@@ -164,8 +166,9 @@ export async function PUT(request: NextRequest) {
       },
     });
 
-    const targetMuscles = updatedExercise.muscles.map((m) => m.muscle.name);
+    const targetMuscles = updatedExercise.muscles.map((m: typeof updatedExercise.muscles[number]) => m.muscle.name);
 
+    revalidatePath(`/equipment/${updatedExercise.equipmentId}`, 'page');
     return NextResponse.json({ ...updatedExercise, targetMuscles });
   } catch (_error) {
     console.error("Ошибка обновления упражнения:", _error);
@@ -186,7 +189,11 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
+    const exercise = await prisma.exercise.findUnique({ where: { id }, select: { equipmentId: true } });
     await prisma.exercise.delete({ where: { id } });
+    if (exercise) {
+      revalidatePath(`/equipment/${exercise.equipmentId}`, 'page');
+    }
     return NextResponse.json({ message: "Удалено" });
   } catch (_error) {
     return NextResponse.json({ error: "Ошибка удаления упражнения" }, { status: 500 });

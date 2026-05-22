@@ -6,7 +6,7 @@ export async function GET() {
     const difficulties = await prisma.difficulty.findMany({
       orderBy: { name: "asc" },
     });
-    const dataWithStringId = difficulties.map((d) => ({
+    const dataWithStringId = difficulties.map((d: { id: number; name: string; description: string | null }) => ({
       ...d,
       id: d.id.toString(),
     }));

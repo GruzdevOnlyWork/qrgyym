@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from "react";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeSVG, QRCodeCanvas } from "qrcode.react";
 
 interface QRCodeDisplayProps {
   url: string;
@@ -11,7 +11,7 @@ interface QRCodeDisplayProps {
 
 const QRCodeDisplay = ({ url, equipmentName, size = 200 }: QRCodeDisplayProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const hiddenCanvasRef = useRef<HTMLDivElement | null>(null);
   const [fullUrl, setFullUrl] = useState("");
 
   useEffect(() => {
@@ -21,33 +21,35 @@ const QRCodeDisplay = ({ url, equipmentName, size = 200 }: QRCodeDisplayProps) =
   }, [url]);
 
   const handleDownload = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const hiddenWrapper = hiddenCanvasRef.current;
+    if (!hiddenWrapper) return;
 
-    const ctx = canvas.getContext("2d");
+    const qrCanvas = hiddenWrapper.querySelector("canvas");
+    if (!qrCanvas) return;
+
+    // Create a new canvas with space for the URL bar
+    const downloadCanvas = document.createElement("canvas");
+    downloadCanvas.width = size;
+    downloadCanvas.height = size + 40;
+    const ctx = downloadCanvas.getContext("2d");
     if (!ctx) return;
 
-    const qrImage = new Image();
-    qrImage.crossOrigin = "anonymous";
-    qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(fullUrl)}`;
+    // Draw the QR code from the hidden canvas
+    ctx.drawImage(qrCanvas, 0, 0, size, size);
 
-    qrImage.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(qrImage, 0, 0, size, size);
-      ctx.fillStyle = "rgba(98, 147, 241, 0.8)";
-      ctx.fillRect(0, size - 40, size, 40);
+    // Draw the URL bar
+    ctx.fillStyle = "rgba(98, 147, 241, 0.8)";
+    ctx.fillRect(0, size, size, 40);
+    ctx.font = "bold 14px monospace";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.textAlign = "center";
+    ctx.fillText(fullUrl, size / 2, size + 25);
 
-      ctx.font = "bold 14px monospace";
-      ctx.fillStyle = "#FFFFFF";
-      ctx.textAlign = "center";
-      ctx.fillText(fullUrl, size / 2, size - 15);
-
-      const dataUrl = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = dataUrl;
-      link.download = `qrcode-${equipmentName}.png`;
-      link.click();
-    };
+    const dataUrl = downloadCanvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = `qr-${equipmentName}.png`;
+    link.click();
   };
 
   if (!fullUrl) return null;
@@ -73,12 +75,10 @@ const QRCodeDisplay = ({ url, equipmentName, size = 200 }: QRCodeDisplayProps) =
           )}
         </div>
       </div>
-      <canvas
-        ref={canvasRef}
-        width={size}
-        height={size + 40}
-        style={{ display: "none" }}
-      />
+      {/* Hidden canvas for download rendering */}
+      <div ref={hiddenCanvasRef} style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
+        <QRCodeCanvas value={fullUrl} size={size} level="H" />
+      </div>
     </div>
   );
 };

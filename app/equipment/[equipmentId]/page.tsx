@@ -1,18 +1,29 @@
 import { prisma } from "../../../prisma/prisma-client";
 import { notFound } from "next/navigation";
-import {  Dumbbell } from "lucide-react";
+import Link from "next/link";
+import { Dumbbell, ClipboardList } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 import QRCodeDisplay from "@/components/QRCodeDisplay";
 import ExerciseCard from "@/components/ExerciseCard";
 import Header from "@/components/Header";
 
 interface EquipmentPageProps {
-  params: { equipmentId: string };
+  params: Promise<{ equipmentId: string }>;
 }
 
 export default async function EquipmentPage({ params }: EquipmentPageProps) {
+  const { equipmentId } = await params;
+
   const equipment = await prisma.equipment.findUnique({
-    where: { id: params.equipmentId },
+    where: { id: equipmentId },
     include: {
       exercises: {
         include: {
@@ -35,6 +46,19 @@ export default async function EquipmentPage({ params }: EquipmentPageProps) {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto max-w-6xl px-4 py-12 space-y-12">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/">Главная</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{equipment.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           <section className="space-y-6">
             <div className="flex items-center gap-3">
@@ -74,16 +98,29 @@ export default async function EquipmentPage({ params }: EquipmentPageProps) {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {equipment.exercises.map((exercise) => (
-              <ExerciseCard
-                key={exercise.id}
-                exercise={{
-                  ...exercise,
-                  targetMuscles: exercise.muscles.map((m) => m.muscle.name),
-                }}
-                equipmentId={equipment.id}
-              />
-            ))}
+            {equipment.exercises.length > 0 ? (
+              equipment.exercises.map((exercise: {
+                id: string;
+                name: string;
+                description: string;
+                difficulty: { id: number; name: string };
+                muscles: { muscle: { id: number; name: string } }[];
+              }) => (
+                <ExerciseCard
+                  key={exercise.id}
+                  exercise={{
+                    ...exercise,
+                    targetMuscles: exercise.muscles.map((m) => m.muscle.name),
+                  }}
+                  equipmentId={equipment.id}
+                />
+              ))
+            ) : (
+              <div className="text-center py-16 col-span-full space-y-3">
+                <ClipboardList className="w-12 h-12 mx-auto text-muted-foreground" />
+                <p className="text-muted-foreground text-lg">Упражнения пока не добавлены</p>
+              </div>
+            )}
           </div>
         </section>
       </main>

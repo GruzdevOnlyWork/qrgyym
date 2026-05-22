@@ -5,21 +5,32 @@ import { ArrowLeft, CheckCircle, Lightbulb, Target, ImageIcon } from "lucide-rea
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 import Image from "next/image";
+import ScrollToTop from "@/components/ScrollToTop";
 
 interface ExercisePageProps {
-  params: { equipmentId: string; exerciseId: string };
+  params: Promise<{ equipmentId: string; exerciseId: string }>;
 }
 
 export default async function ExercisePage({ params }: ExercisePageProps) {
+  const { equipmentId, exerciseId } = await params;
+
   const equipment = await prisma.equipment.findUnique({
-    where: { id: params.equipmentId },
+    where: { id: equipmentId },
   });
 
   const exercise = await prisma.exercise.findFirst({
     where: {
-      id: params.exerciseId,
-      equipmentId: params.equipmentId,
+      id: exerciseId,
+      equipmentId: equipmentId,
     },
     include: {
       difficulty: true,
@@ -62,6 +73,26 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
       </header>
 
       <main className="container mx-auto max-w-4xl px-4 py-12 space-y-8">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/">Главная</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href={`/equipment/${equipment.id}`}>{equipment.name}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{exercise.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
         <section className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
             <Badge variant="outline" className={getDifficultyColor(exercise.difficulty.name)}>
@@ -85,7 +116,7 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {exercise.muscles.map(({ muscle }) => (
+              {exercise.muscles.map(({ muscle }: { muscle: { id: number; name: string } }) => (
                 <Badge key={muscle.id} variant="outline">
                   {muscle.name}
                 </Badge>
@@ -122,11 +153,16 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="list-disc list-inside space-y-1">
-              {exercise.instructions.map((inst, i) => (
-                <li key={i}>{inst}</li>
+            <div className="space-y-0">
+              {exercise.instructions.map((inst: string, i: number) => (
+                <div key={i} className="flex gap-4 items-start py-3 border-b border-border last:border-0">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                    {i + 1}
+                  </span>
+                  <p className="text-foreground leading-relaxed pt-1">{inst}</p>
+                </div>
               ))}
-            </ul>
+            </div>
           </CardContent>
         </Card>
 
@@ -139,13 +175,14 @@ export default async function ExercisePage({ params }: ExercisePageProps) {
           </CardHeader>
           <CardContent>
             <ul className="list-disc list-inside space-y-1">
-              {exercise.tips.map((tip, i) => (
+              {exercise.tips.map((tip: string, i: number) => (
                 <li key={i}>{tip}</li>
               ))}
             </ul>
           </CardContent>
         </Card>
       </main>
+      <ScrollToTop />
     </div>
   );
 }
