@@ -1,0 +1,18 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/prisma/prisma-client";
+
+export async function GET() {
+  try {
+    const difficulties = await prisma.difficulty.findMany({
+      orderBy: { name: "asc" },
+    });
+    const dataWithStringId = difficulties.map((d: { id: number; name: string; description: string | null }) => ({
+      ...d,
+      id: d.id.toString(),
+    }));
+
+    return NextResponse.json(dataWithStringId);
+  } catch (_error) {
+    return NextResponse.json({ error: "Ошибка получения данных" }, { status: 500 });
+  }
+}
