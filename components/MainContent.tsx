@@ -162,7 +162,7 @@ export default function MainContent({ equipmentData }: { equipmentData: Equipmen
 
       <footer className="bg-card border-t border-border py-8 px-4 mt-16">
         <div className="container mx-auto max-w-6xl text-center">
-          <p className="text-muted-foreground">© 2025 BTGPGym — БТГП. Современный каталог тренажёров и упражнений.</p>
+          <p className="text-muted-foreground">БТГП. Современный каталог тренажёров и упражнений.</p>
         </div>
       </footer>
 
